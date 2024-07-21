@@ -143,6 +143,8 @@ export async function fetchFilteredInvoices(
 
 export async function fetchInvoicesPages(query: string) {
   try {
+    const searchTerm = `%${query}%`;
+
     const count = await client.query(
       `SELECT COUNT(*)
     FROM invoices
@@ -154,7 +156,7 @@ export async function fetchInvoicesPages(query: string) {
         invoices.date::text ILIKE $1 OR
         invoices.status ILIKE $1
   `,
-      [query],
+      [searchTerm],
     );
 
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
