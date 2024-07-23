@@ -9,7 +9,7 @@ import {
 } from "./definitions";
 import { formatCurrency } from "./utils";
 
-const getDbClient = async () => {
+export const getDbClient = async () => {
   const client = new Client({
     host: "localhost",
     user: "user",
@@ -169,15 +169,18 @@ export async function fetchInvoicesPages(query: string) {
 
 export async function fetchInvoiceById(id: string) {
   try {
-    const data = await client.query<InvoiceForm>(`
+    const data = await client.query<InvoiceForm>(
+      `
       SELECT
         invoices.id,
         invoices.customer_id,
         invoices.amount,
         invoices.status
       FROM invoices
-      WHERE invoices.id = ${id};
-    `);
+      WHERE invoices.id = $1
+    `,
+      [id],
+    );
 
     const invoice = data.rows.map((invoice) => ({
       ...invoice,
@@ -192,23 +195,23 @@ export async function fetchInvoiceById(id: string) {
   }
 }
 
-// export async function fetchCustomers() {
-//   try {
-//     const data = await sql<CustomerField>`
-//       SELECT
-//         id,
-//         name
-//       FROM customers
-//       ORDER BY name ASC
-//     `;
+export async function fetchCustomers() {
+  try {
+    const data = await client.query<CustomerField>(`
+      SELECT
+        id,
+        name
+      FROM customers
+      ORDER BY name ASC
+    `);
 
-//     const customers = data.rows;
-//     return customers;
-//   } catch (err) {
-//     console.error('Database Error:', err);
-//     throw new Error('Failed to fetch all customers.');
-//   }
-// }
+    const customers = data.rows;
+    return customers;
+  } catch (err) {
+    console.error("Database Error:", err);
+    throw new Error("Failed to fetch all customers.");
+  }
+}
 
 // export async function fetchFilteredCustomers(query: string) {
 //   try {
